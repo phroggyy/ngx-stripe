@@ -8,8 +8,8 @@ import {
   Output
 } from '@angular/core';
 
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import {filter, switchMap} from 'rxjs/operators';
 
 import {
   Element as StripeElement,
@@ -25,8 +25,8 @@ import { Elements, ElementsOptions } from '../interfaces/elements';
 export class StripeCardComponent implements OnInit {
   @Output() public onCard = new EventEmitter<StripeElement>();
 
-  @ViewChild('card') private card: ElementRef;
-  private element: StripeElement;
+  @ViewChild('card') private card?: ElementRef;
+  private element?: StripeElement;
   @Input()
   private set options(optionsIn: ElementOptions) {
     this.options$.next(optionsIn);
@@ -43,24 +43,25 @@ export class StripeCardComponent implements OnInit {
   public ngOnInit() {
     const elements$: Observable<
       Elements
-    > = this.elementsOptions$.asObservable().switchMap(options => {
+    > = this.elementsOptions$.asObservable().pipe(switchMap(options => {
       if (Object.keys(options).length > 0) {
         return this.stripeService.elements(options);
       }
       return this.stripeService.elements();
-    });
-    Observable.combineLatest(
+    }));
+
+    combineLatest(
       elements$,
-      this.options$.asObservable().filter(options => Boolean(options))
+      this.options$.asObservable().pipe(filter(options => Boolean(options)))
     ).subscribe(([elements, options]) => {
       this.element = elements.create('card', options);
-      this.element.mount(this.card.nativeElement);
+      this.element.mount(this.card!.nativeElement);
 
       this.onCard.emit(this.element);
     });
   }
 
   public getCard(): StripeElement {
-    return this.element;
+    return this.element!;
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable, from } from 'rxjs';
+import {filter, map, publishLast, refCount} from 'rxjs/operators';
 
 import { WindowRef } from './window-ref';
 import { LazyStripeAPILoader, Status } from './api-loader.service';
@@ -33,7 +34,7 @@ import {
 
 @Injectable()
 export class StripeService {
-  private stripe: StripeJS;
+  private stripe?: StripeJS;
 
   constructor(
     @Inject(STRIPE_PUBLISHABLE_KEY) private key: string,
@@ -43,7 +44,9 @@ export class StripeService {
   ) {
     this.loader
       .asStream()
-      .filter((status: Status) => status.loaded === true)
+      .pipe(
+        filter((status: Status) => status.loaded === true),
+      )
       .subscribe(() => {
         const Stripe = (this.window.getNativeWindow() as any).Stripe;
         this.stripe = this.options
@@ -55,16 +58,18 @@ export class StripeService {
   public changeKey(key: string, options?: string): Observable<StripeJS> {
     const obs = this.loader
       .asStream()
-      .filter((status: Status) => status.loaded === true)
-      .map(() => {
-        const Stripe = (this.window.getNativeWindow() as any).Stripe;
-        this.stripe = options
-          ? (Stripe(key, options) as StripeJS)
-          : (Stripe(key) as StripeJS);
-        return this.stripe;
-      })
-      .publishLast()
-      .refCount();
+      .pipe(
+        filter((status: Status) => status.loaded === true),
+        map(() => {
+          const Stripe = (this.window.getNativeWindow() as any).Stripe;
+          this.stripe = options
+            ? (Stripe(key, options) as StripeJS)
+            : (Stripe(key) as StripeJS);
+          return this.stripe;
+        }),
+        publishLast(),
+        refCount(),
+      );
     obs.subscribe();
     return obs;
   }
@@ -72,8 +77,10 @@ export class StripeService {
   public elements(options?: ElementsOptions): Observable<Elements> {
     return this.loader
       .asStream()
-      .filter((status: Status) => status.loaded === true)
-      .map(() => this.stripe.elements(options));
+      .pipe(
+        filter((status: Status) => status.loaded === true),
+        map(() => this.stripe!.elements(options)),
+      );
   }
 
   public createToken(
@@ -81,12 +88,12 @@ export class StripeService {
     b: CardDataOptions | BankAccountData | PiiData | undefined
   ): Observable<TokenResult> {
     if (isBankAccount(a) && isBankAccountData(b)) {
-      return Observable.fromPromise(this.stripe.createToken(a, b));
+      return from(this.stripe!.createToken(a, b));
     } else if (isPii(a) && isPiiData(b)) {
-      return Observable.fromPromise(this.stripe.createToken(a, b));
+      return from(this.stripe!.createToken(a, b));
     } else {
-      return Observable.fromPromise(
-        this.stripe.createToken(a as Element, b as CardDataOptions | undefined)
+      return from(
+        this.stripe!.createToken(a as Element, b as CardDataOptions | undefined)
       );
     }
   }
@@ -96,12 +103,12 @@ export class StripeService {
     b?: SourceData | undefined
   ): Observable<SourceResult> {
     if (isSourceData(a)) {
-      return Observable.fromPromise(this.stripe.createSource(a as SourceData));
+      return from(this.stripe!.createSource(a as SourceData));
     }
-    return Observable.fromPromise(this.stripe.createSource(a as Element, b));
+    return from(this.stripe!.createSource(a as Element, b));
   }
 
   public retrieveSource(source: SourceParams): Observable<SourceResult> {
-    return Observable.fromPromise(this.stripe.retrieveSource(source));
+    return from(this.stripe!.retrieveSource(source));
   }
 }

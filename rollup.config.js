@@ -4,15 +4,9 @@ import resolve from 'rollup-plugin-node-resolve';
 const globals = {
   '@angular/core': 'ng.core',
   '@angular/common': 'ng.common',
-  'rxjs/add/observable/combineLatest': 'Rx',
+  'rxjs': 'Rx',
+  'rxjs/operators': 'Rx',
   'rxjs/add/observable/fromPromise': 'Rx',
-  'rxjs/add/operator/map': 'Rx',
-  'rxjs/add/operator/filter': 'Rx',
-  'rxjs/add/operator/switchMap': 'Rx',
-  'rxjs/add/operator/publishLast': 'Rx',
-  'rxjs/add/operator/refCount': 'Rx',
-  'rxjs/Observable': 'Rx',
-  'rxjs/BehaviorSubject': 'Rx'
 };
 
 export default {
