@@ -52,14 +52,14 @@ if (shell.exec(`rollup -c rollup.config.js --sourcemap`).code !== 0) {
   shell.echo(chalk.red(`Error: Rollup conversion failed`));
   shell.exit(1);
 }
-shell.exec(`node scripts/map-sources -f ${BUNDLES_DIR}/${PACKAGE}.umd.js`);
+shell.exec(`node scripts/map-sources -f ${BUNDLES_DIR}/${PACKAGE}.js`);
 
 shell.echo(`Minifying`);
 shell.cd(`${BUNDLES_DIR}`);
 shell.exec(
-  `uglifyjs -c warnings=false --screw-ie8 --comments -o ${PACKAGE}.umd.min.js --source-map ${PACKAGE}.umd.min.js.map --source-map-include-sources ${PACKAGE}.umd.js`
+  `uglifyjs -c warnings=false --screw-ie8 --comments -o ${PACKAGE}.min.js --source-map ${PACKAGE}.min.js.map --source-map-include-sources ${PACKAGE}.js`
 );
-shell.exec(`node ../../scripts/map-sources -f ${PACKAGE}.umd.min.js`);
+shell.exec(`node ../../scripts/map-sources -f ${PACKAGE}.min.js`);
 shell.cd(`..`);
 shell.cd(`..`);
 

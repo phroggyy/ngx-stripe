@@ -6,12 +6,11 @@ const globals = {
   '@angular/common': 'ng.common',
   'rxjs': 'Rx',
   'rxjs/operators': 'Rx',
-  'rxjs/add/observable/fromPromise': 'Rx',
 };
 
 export default {
   entry: './dist/modules/ngx-stripe.es5.js',
-  dest: './dist/bundles/ngx-stripe.umd.js',
+  dest: './dist/bundles/ngx-stripe.js',
   format: 'umd',
   exports: 'named',
   moduleName: 'ng.stripe',
