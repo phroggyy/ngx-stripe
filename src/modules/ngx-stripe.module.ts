@@ -15,7 +15,7 @@ import { StripeCardComponent } from '../components/stripe-card.component';
 
 @NgModule({
   declarations: [StripeCardComponent],
-  exports: [StripeCardComponent]
+  exports: [StripeCardComponent],
 })
 export class NgxStripeModule {
   public static forRoot(
@@ -25,10 +25,6 @@ export class NgxStripeModule {
     return {
       ngModule: NgxStripeModule,
       providers: [
-        LazyStripeAPILoader,
-        StripeService,
-        WindowRef,
-        DocumentRef,
         {
           provide: STRIPE_PUBLISHABLE_KEY,
           useValue: publishableKey
@@ -36,7 +32,11 @@ export class NgxStripeModule {
         {
           provide: STRIPE_OPTIONS,
           useValue: options
-        }
+        },
+        LazyStripeAPILoader,
+        StripeService,
+        WindowRef,
+        DocumentRef,
       ]
     };
   }

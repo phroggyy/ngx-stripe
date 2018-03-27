@@ -26,7 +26,7 @@ export class StripeCardComponent implements OnInit {
   @Output() public onCard = new EventEmitter<StripeElement>();
 
   @ViewChild('card') private card?: ElementRef;
-  private element?: StripeElement;
+  private element: StripeElement;
   @Input()
   private set options(optionsIn: ElementOptions) {
     this.options$.next(optionsIn);
@@ -62,6 +62,6 @@ export class StripeCardComponent implements OnInit {
   }
 
   public getCard(): StripeElement {
-    return this.element!;
+    return this.element;
   }
 }
